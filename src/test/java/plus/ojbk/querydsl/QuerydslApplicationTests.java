@@ -1,6 +1,7 @@
 package plus.ojbk.querydsl;
 
 import com.alibaba.fastjson.JSON;
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
@@ -193,6 +194,41 @@ class QuerydslApplicationTests {
                 .fetch();
 
         log.info("关联查询结果= {}", JSON.toJSONString(roleList));
+    }
+
+    /**
+     * 多条件查询
+     */
+    @Test
+    void demoSeven() {
+        QEmployee qe = QEmployee.employee;
+        List<MEmployee> employeeList = jpaQueryFactory.select(
+                Projections.bean(MEmployee.class,
+                        qe.id,
+                        qe.name,
+                        qe.birthday
+                ))
+                .from(qe)             // 多条件 使用 and 连接
+                .where(qe.name.like("小" + "%").and(qe.role.name.like( "%"+"程序员")))
+                .fetch();
+
+        log.info("多条件查询员工信息结果1= {}", JSON.toJSONString(employeeList));
+        // 不推荐上面这种写法，建议单独把条件剥离出来 使用BooleanBuilder来构建查询条件 这样条件更加直观
+        BooleanBuilder builder = new BooleanBuilder();
+        builder.and(qe.name.like("小" + "%"));
+        builder.and(qe.role.name.like( "%"+"程序员"));
+        //那么只需要 在 where 中填入 builder即可 。
+        List<MEmployee> employeeList2 = jpaQueryFactory.select(
+                Projections.bean(MEmployee.class,
+                        qe.id,
+                        qe.name,
+                        qe.birthday
+                ))
+                .from(qe)
+                .where(builder)
+                .fetch();
+        log.info("多条件查询员工信息结果2= {}", JSON.toJSONString(employeeList2));
+
     }
 
     /**
