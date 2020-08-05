@@ -105,7 +105,7 @@ class QuerydslApplicationTests {
         Tuple department2 = departmentTuple.fetchFirst();
         //由于该种方式返回的是Tuple 因此如果要取值可以使用如下方式
         String id2 = department2.get(qd.id);
-        log.info("查询某个部门信息2= {} , id {} ", JSON.toJSONString(department2), id.equals(id2));
+        log.info("查询某个部门信息2= {} , id {} ", JSON.toJSONString(department2.toString()), id.equals(id2));
         //建议 使用 select(Projections.bean(你的实体.class, 字段一,字段二 ....)) ，在第三个demo 中会提及
     }
 
