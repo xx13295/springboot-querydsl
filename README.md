@@ -25,4 +25,11 @@
     打开resource目录中的 application.properties
     
     增加mysql的相关性配置 填写你自己的
-    
+ 
+# 相关文档
+ 
+	http://www.querydsl.com/static/querydsl/latest/reference/html_single/
+	
+	http://www.querydsl.com/static/querydsl/latest/apidocs/
+	
+	https://fududu.gitbooks.io/querydsl-zh_cn/Introduction.html

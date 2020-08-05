@@ -5,6 +5,7 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ import plus.ojbk.querydsl.repository.IDepartmentRepository;
 import plus.ojbk.querydsl.repository.IEmployeeRepository;
 import plus.ojbk.querydsl.repository.IRoleRepository;
 
+import javax.persistence.Query;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -171,6 +173,7 @@ class QuerydslApplicationTests {
                 ))
                 .from(qe)
                 .leftJoin(qe.role, qr)
+                //.on(条件)
                 .fetch();
         log.info("关联查询结果= {}", JSON.toJSONString(roleList));
 
@@ -218,18 +221,40 @@ class QuerydslApplicationTests {
         builder.and(qe.name.like("小" + "%"));
         builder.and(qe.role.name.like( "%"+"程序员"));
         //那么只需要 在 where 中填入 builder即可 。
+        QRole qr = QRole.role;
         List<MEmployee> employeeList2 = jpaQueryFactory.select(
                 Projections.bean(MEmployee.class,
                         qe.id,
                         qe.name,
                         qe.birthday
                 ))
-                .from(qe)
+                .from(qe).leftJoin(qe.role, qr)
                 .where(builder)
                 .fetch();
         log.info("多条件查询员工信息结果2= {}", JSON.toJSONString(employeeList2));
 
     }
+
+    /**
+     * 子查询
+     */
+    @Test
+    void demoEight() {
+        QEmployee qe = QEmployee.employee;
+        QEmployee newQe = new QEmployee("newEmployee");
+        List<MEmployee> employeeList = jpaQueryFactory.select(
+                Projections.bean(MEmployee.class, qe.id, qe.name, qe.birthday
+                ))
+                .from(qe)
+                .where(
+                        qe.id.eq(JPAExpressions.select(newQe.id.max()).from(newQe))
+                )
+                .fetch();
+
+        log.info("子查询= {}", JSON.toJSONString(employeeList));
+
+    }
+
 
     /**
      * 更新数据
